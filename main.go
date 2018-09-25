@@ -74,7 +74,8 @@ type body struct {
 }
 
 type project struct {
-	Name         string `json:"name"`
+	Project      string `json:"project"`
 	Brief        string `json:"brief"`
 	Technologies string `json:"technologies"`
+	GithubURL    string `json:"githubURL"`
 }
