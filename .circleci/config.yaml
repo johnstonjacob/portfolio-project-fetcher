@@ -1,0 +1,48 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.11
+    working_directory: ~/github.com/johnstonjacob/portfolio-project-fetcher
+    steps:
+      - checkout
+      - run: 
+            name: Get dependencies
+            command: go get -d -v ./...
+      - run:
+            name: Setup artifacts
+            command: |
+                mkdir /tmp/artifacts
+      - run:
+          name: Generate bin
+          command: |
+              export GOOS=linux
+              go build -o main
+              zip /tmp/artifacts/main.zip main
+      - store_artifacts:
+          path: /tmp/artifacts
+
+  deploy:
+    docker:
+      - image: circleci/python:2.7-jessie
+    steps:
+      - checkout
+      - run:
+          name: Install awscli
+          command: sudo pip install awscli
+      - run:
+          name: Deploy to lambda
+          command: aws lambda update-function-code --region us-east-2 --function-name portfolio-projects --zip-file fileb://tmp/artifacts/main.zip
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+
