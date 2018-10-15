@@ -40,7 +40,7 @@ jobs:
           command: sudo pip install awscli
       - run:
           name: Deploy to lambda
-          command: aws lambda update-function-code --region us-east-2 --function-name portfolio-projects --zip-file fileb://tmp/workspace/main.zip
+          command: aws lambda update-function-code --region us-east-2 --function-name portfolio-projects --zip-file fileb:///tmp/workspace/main.zip
 
 workflows:
   version: 2
