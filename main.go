@@ -15,13 +15,13 @@ import (
 )
 
 var (
-	region      string
-	credentials string
-	profile     string
+	region    string
+	tableName string
 )
 
 func init() {
 	region = os.Getenv("AWS_REGION")
+	tableName = os.Getenv("TABLE_NAME")
 }
 
 func main() {
@@ -43,7 +43,7 @@ func projectHandler() (events.APIGatewayProxyResponse, error) {
 	svc := dynamodb.New(sess)
 
 	result, err := svc.Scan(&dynamodb.ScanInput{
-		TableName: aws.String("portfolio"),
+		TableName: aws.String(tableName),
 	})
 
 	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &b.Projects)
