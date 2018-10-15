@@ -10,29 +10,37 @@ jobs:
             name: Get dependencies
             command: go get -d -v ./...
       - run:
-            name: Setup artifacts
+            name: Setup artifacts and workspace
             command: |
                 mkdir /tmp/artifacts
+                mkdir workspace
       - run:
           name: Generate bin
           command: |
               export GOOS=linux
               go build -o main
               zip /tmp/artifacts/main.zip main
+              cp /tmp/artifacts/main.zip /workspace
       - store_artifacts:
           path: /tmp/artifacts
+      - persist_to_workspace:
+          root: workspace
+          paths:
+              - workspace
 
   deploy:
     docker:
       - image: circleci/python:2.7-jessie
     steps:
       - checkout
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
           name: Install awscli
           command: sudo pip install awscli
       - run:
           name: Deploy to lambda
-          command: aws lambda update-function-code --region us-east-2 --function-name portfolio-projects --zip-file fileb://tmp/artifacts/main.zip
+          command: aws lambda update-function-code --region us-east-2 --function-name portfolio-projects --zip-file fileb://tmp/workspace/main.zip
 
 workflows:
   version: 2
